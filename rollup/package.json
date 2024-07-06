@@ -1,5 +1,5 @@
 {
-  "name": "counter-mru",
+  "name": "token-transfer-mru",
   "module": "index.ts",
   "type": "module",
   "scripts": {

@@ -1,46 +1,89 @@
-import { ActionSchema, AllowedInputTypes, MicroRollup } from "@stackr/sdk";
-import { HDNodeWallet, Wallet } from "ethers";
-import { stackrConfig } from "../stackr.config.ts";
-import { UpdateCounterSchema } from "./stackr/action.ts";
-import { machine } from "./stackr/machine.ts";
+import express, { Request, Response } from "express";
 
-const wallet = Wallet.createRandom();
+import { ActionEvents } from "@stackr/sdk";
+import { Playground } from "@stackr/sdk/plugins";
+import dotenv from "dotenv";
+import { schemas } from "./actions.ts";
+import { ERC20Machine, mru } from "./erc20.ts";
+import { transitions } from "./transitions.ts";
 
-const signMessage = async (
-  wallet: HDNodeWallet,
-  schema: ActionSchema,
-  payload: AllowedInputTypes
-) => {
-  const signature = await wallet.signTypedData(
-    schema.domain,
-    schema.EIP712TypedData.types,
-    payload
+console.log("Starting server...");
+dotenv.config();
+
+const erc20Machine = mru.stateMachines.get<ERC20Machine>("erc-20");
+
+const app = express();
+app.use(express.json());
+
+if (process.env.NODE_ENV === "development") {
+  const playground = Playground.init(mru);
+
+  playground.addGetMethod(
+    "/custom/hello",
+    async (_req: Request, res: Response) => {
+      res.json({
+        message: "Hello from the custom route",
+      });
+    }
   );
-  return signature;
-};
+}
 
-const main = async () => {
-  const mru = await MicroRollup({
-    config: stackrConfig,
-    actionSchemas: [UpdateCounterSchema],
-    stateMachines: [machine],
-  });
+const { actions, chain, events } = mru;
 
-  await mru.init();
+events.subscribe(ActionEvents.SUBMIT, (args) => {
+  console.log("Submitted an action", args);
+});
 
-  const inputs = {
-    timestamp: Date.now(),
-  };
+events.subscribe(ActionEvents.EXECUTION_STATUS, async (action) => {
+  console.log("Submitted an action", action);
+});
 
-  const signature = await signMessage(wallet, UpdateCounterSchema, inputs);
-  const incrementAction = UpdateCounterSchema.actionFrom({
-    inputs,
-    signature,
-    msgSender: wallet.address,
-  });
+app.get("/actions/:hash", async (req: Request, res: Response) => {
+  const { hash } = req.params;
+  const action = await actions.getByHash(hash);
+  if (!action) {
+    return res.status(404).send({ message: "Action not found" });
+  }
+  return res.send(action);
+});
 
-  const ack = await mru.submitAction("increment", incrementAction);
-  console.log(ack);
-};
+app.get("/blocks/:hash", async (req: Request, res: Response) => {
+  const { hash } = req.params;
+  const block = await chain.getBlockByHash(hash);
+  if (!block) {
+    return res.status(404).send({ message: "Block not found" });
+  }
+  return res.send(block);
+});
 
-main();
+app.post("/:reducerName", async (req: Request, res: Response) => {
+  const { reducerName } = req.params;
+  const actionReducer = transitions[reducerName];
+
+  if (!actionReducer) {
+    res.status(400).send({ message: "̦̦no reducer for action" });
+    return;
+  }
+  const action = reducerName as keyof typeof schemas;
+
+  const { msgSender, signature, inputs } = req.body;
+
+  const schema = schemas[action];
+
+  try {
+    const newAction = schema.actionFrom({ msgSender, signature, inputs });
+    const ack = await mru.submitAction(reducerName, newAction);
+    res.status(201).send({ ack });
+  } catch (e: any) {
+    res.status(400).send({ error: e.message });
+  }
+  return;
+});
+
+app.get("/", (_req: Request, res: Response) => {
+  return res.send({ state: erc20Machine?.state });
+});
+
+app.listen(3000, () => {
+  console.log("listening on port 3000");
+});
