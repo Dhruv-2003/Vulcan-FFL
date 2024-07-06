@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 
-import { ActionEvents } from "@stackr/sdk";
+import { ActionEvents, BlockEvents } from "@stackr/sdk";
 import { Playground } from "@stackr/sdk/plugins";
 import dotenv from "dotenv";
 import { schemas } from "./actions.ts";
@@ -86,4 +86,14 @@ app.get("/", (_req: Request, res: Response) => {
 
 app.listen(3000, () => {
   console.log("listening on port 3000");
+});
+
+
+//////// AVS Block Syncer ///////////
+
+
+
+events.subscribe(BlockEvents.SUBMITTED, async (action) => {
+  const {block} = action;
+  console.log("Submitted a block", block);
 });

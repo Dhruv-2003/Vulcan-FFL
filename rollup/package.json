@@ -11,7 +11,8 @@
     "ethers": "^6.7.1",
     "express": "^4.18.2",
     "merkletreejs": "^0.3.11",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "viem": "^2.17.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.13",
