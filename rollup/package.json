@@ -7,6 +7,7 @@
     "test": "mocha --require ts-node/register src/**/*.test.ts"
   },
   "dependencies": {
+    "@pinata/sdk": "^2.1.0",
     "@stackr/sdk": "latest",
     "ethers": "^6.7.1",
     "express": "^4.18.2",

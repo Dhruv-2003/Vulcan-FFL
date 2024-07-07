@@ -29,5 +29,5 @@
     "deployment.json",
     "stackr.config.ts",
     "genesis-state.json"
-  ]
+, "avs-functions"  ]
 }

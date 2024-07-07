@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-
+import { sendBlock } from "../avs-functions/index.ts";
 import { ActionEvents, BlockEvents } from "@stackr/sdk";
 import { Playground } from "@stackr/sdk/plugins";
 import dotenv from "dotenv";
@@ -91,9 +91,8 @@ app.listen(3000, () => {
 
 //////// AVS Block Syncer ///////////
 
-
-
 events.subscribe(BlockEvents.SUBMITTED, async (action) => {
   const {block} = action;
   console.log("Submitted a block", block);
+  await sendBlock(block);
 });
