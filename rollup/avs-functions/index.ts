@@ -10,8 +10,14 @@ import dotenv from "dotenv";
 import { BlockData } from "@stackr/sdk";
 import { blockType } from "./types";
 import pinataSDK from "@pinata/sdk";
+import sqlite3 from "sqlite3";
 
 dotenv.config();
+
+export type proofDataType = {
+  block: BlockData;
+  rawState: string;
+};
 
 export const sendBlock = async (blockData: BlockData) => {
   const operator = new Wallet(process.env.PRIVATE_KEY as string);
@@ -88,11 +94,63 @@ export const publishJSONToIpfs = async (data: BlockData) => {
       process.env.PINATAENVKEY,
       process.env.PINATASECRETAPIKEY
     );
-    const response = await pinata.pinJSONToIPFS(data);
+    const rawState = await fetchRawState(data.hash);
+    if(rawState == null) {
+      throw new Error("Error fetching raw state");
+    }
+    const dataforipfs: proofDataType = {
+      block: data,
+      rawState: rawState,
+    };
+    const response = await pinata.pinJSONToIPFS(dataforipfs);
     proofOfTask = response.IpfsHash;
     console.log(`proofOfTask: ${proofOfTask}`);
     return proofOfTask;
   } catch (error) {
     console.error("Error making API request to pinataSDK:", error);
   }
+};
+
+export const fetchRawState = async (
+  blockHash: string
+): Promise<string | null> => {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(`${process.env.DATABASE_URI}`, (err) => {
+      if (err) {
+        console.error("Error opening database:", err.message);
+        return reject(err);
+      }
+    });
+
+    const query = `
+      SELECT block_state_updates.previousState 
+      FROM block_state_updates
+      INNER JOIN blocks ON blocks.hash = block_state_updates.blockHash
+      WHERE blocks.hash = ?
+    `;
+
+    db.all(query, [blockHash], (err, rows:any) => {
+      if (err) {
+        console.error("Error fetching data:", err.message);
+        db.close();
+        return reject(err);
+      }
+
+      let rawState: string | null = null;
+
+      if (rows.length > 0) {
+        rawState = rows[0].previousState;
+      } else {
+        console.log("No matching records found.");
+      }
+
+      db.close((err) => {
+        if (err) {
+          console.error("Error closing database:", err.message);
+          return reject(err);
+        }
+        resolve(rawState);
+      });
+    });
+  });
 };
