@@ -36,8 +36,12 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		res.Data = false
 		res.Error = "Task cannot be empty"
 	} else {
-
 		// Perform validation of the execution of the block to verify
+		// 1. Take the inputs from the request as proofOfTask and data
+		// 2. Preparing the data for the block , so either fetch from the CID or something
+		// 3. Verify block execution
+		// 4. Return the result
+
 		res.Data = true
 	}
 
