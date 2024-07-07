@@ -80,7 +80,7 @@ services:
         ipv4_address: 10.8.0.4
   avs-webapi:
     build:
-      context: ./AVS_WebAPI
+      context: ./AVS-WebAPI
       dockerfile: ./Dockerfile
     env_file:
       - .env
