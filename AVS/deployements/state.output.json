@@ -1,0 +1,32 @@
+{
+  "AvsGovernanceMultisigOwner": "0xBF17F859989A73C55c7BA5Fefb40e63715216B9b",
+  "L1": {
+    "AvsGovernance": "0xb1632BBfD6d5Dfe35fE67e767Bb04CeF77D996B7",
+    "ERC20": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "L1CommunityMultisig": "0xFEA47018D632A77bA579846c840d5706705Dc598",
+    "L1MessageHandler": "0xf7162a7880097239dDDf321F69430E19fF2DEBaf",
+    "L1OperationsMultisig": "0x641bFD5eFBcc0fD5CDb2F3A3b09D979c83604547",
+    "OthenticRegistry": "0x41994741eD86Ec48e9578d0f64839E3F546466Fa",
+    "Vault": "0x12A5Ed14a152CA56690b6d345e998C0d90d53B6B"
+  },
+  "L2": {
+    "AttestationCenter": "0x9CF07c062D7f3804857B9152dE849e4a58dDc5fd",
+    "BN256G2": "0xfDA0991fB004C2AA5B522317755B1D2F8384054B",
+    "L2CommunityMultisig": "0xbc2fF649Aa2F600BAb5D27B4760415fC1409b12B",
+    "L2MessageHandler": "0x0F796bd6F95855C6aD6A72EcdBd53BE24DDA0399",
+    "L2OperationsMultisig": "0xbc2fF649Aa2F600BAb5D27B4760415fC1409b12B",
+    "OBLS": "0xB5747aB04096133Cae100C1178Fe917Dbb82e541"
+  },
+  "LayerZeroConfig": {
+    "L1": {
+      "Addr": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "Chainid": 40217,
+      "InitialDeposit": 1500000000000000000
+    },
+    "L2": {
+      "Addr": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "Chainid": 40267,
+      "InitialDeposit": 2500000000000000000
+    }
+  }
+}
