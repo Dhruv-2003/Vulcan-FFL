@@ -68,6 +68,7 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// Perform validation of the execution of the block to verify
 	// 1. Take the inputs from the request as proofOfTask and data
 	cid := req.ProofOfTask
+	log.Printf("cid for task %v", cid)
 
 	// 2. Preparing the data for the block , so either fetch from the CID or something
 	url := fmt.Sprintf("%s/%s", ipfsHost, cid)

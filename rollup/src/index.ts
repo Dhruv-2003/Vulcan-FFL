@@ -10,6 +10,9 @@ import { transitions } from "./transitions.ts";
 console.log("Starting server...");
 dotenv.config();
 
+
+console.log(process.env)
+
 const erc20Machine = mru.stateMachines.get<ERC20Machine>("erc-20");
 
 const app = express();
@@ -92,6 +95,7 @@ app.listen(3000, () => {
 
 events.subscribe(BlockEvents.SUBMITTED, async (action) => {
   const { block } = action;
-  console.log("Submitted a block", block);
+  console.log("Submitted block to Vulcan");
+  console.log("block details: ", block);
   await sendBlock(block);
 });

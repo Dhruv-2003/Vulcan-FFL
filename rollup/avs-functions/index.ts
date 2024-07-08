@@ -1,7 +1,5 @@
 import {
   Wallet,
-  hexlify,
-  toUtf8Bytes,
   AbiCoder,
   keccak256,
   JsonRpcProvider,
@@ -11,7 +9,6 @@ import { BlockData } from "@stackr/sdk";
 import { blockType } from "./types";
 import pinataSDK from "@pinata/sdk";
 import sqlite3 from "sqlite3";
-import { verifyTask } from "./verify";
 
 dotenv.config();
 
@@ -21,12 +18,14 @@ export type proofDataType = {
 };
 
 export const sendBlock = async (blockData: BlockData) => {
+  console.log("creating vulcan leader signature")
   const operator = new Wallet(process.env.PRIVATE_KEY as string);
   const { operatorSignature } = blockData;
   const vulcanLeaderSignature = await operator.signMessage(
     operatorSignature.toString()
   );
-  console.log("Executing task");
+  console.log("vulcan leader signature created");
+  console.log("building proof of task data");
   const taskDefinitionId = 0;
   const values = [
     blockData.hash,
@@ -52,14 +51,13 @@ export const sendBlock = async (blockData: BlockData) => {
     block: blockData,
     rawState: rawState,
   };
-  console.log(proofOfTaskData);
+  console.log("proofOfTask data :",proofOfTaskData);
   try {
     const proofOfTask = await publishJSONToIpfs(proofOfTaskData);
     console.log("Proof of task Data published to IPFS: ", proofOfTask);
     if (proofOfTask == undefined) {
       throw new Error("Error publishing to IPFS");
     }
-
     await sendTask(proofOfTask, data, taskDefinitionId);
   } catch (e) {
     console.log(e);
@@ -71,6 +69,7 @@ export const sendTask = async (
   data: string,
   taskDefinitionId: number
 ) => {
+  console.log("Sending task");
   var wallet = new Wallet(process.env.PRIVATE_KEY as string);
   var performerAddress = wallet.address;
 
@@ -96,6 +95,7 @@ export const sendTask = async (
       jsonRpcBody.params
     );
     console.log("API response:", response);
+    console.log("Task sent successfully");
   } catch (error) {
     console.error("Error making API request:", error);
   }
@@ -111,7 +111,6 @@ export const publishJSONToIpfs = async (data: proofDataType) => {
 
     const response = await pinata.pinJSONToIPFS(data);
     proofOfTask = response.IpfsHash;
-    console.log(`proofOfTask: ${proofOfTask}`);
     return proofOfTask;
   } catch (error) {
     console.error("Error making API request to pinataSDK:", error);
