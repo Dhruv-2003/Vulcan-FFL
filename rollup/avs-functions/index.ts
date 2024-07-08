@@ -43,7 +43,6 @@ export const sendBlock = async (blockData: BlockData) => {
   ];
 
   const data = AbiCoder.defaultAbiCoder().encode(blockType, values);
-  // console.log("Data:", data);
 
   const rawState = await fetchRawState(blockData.hash);
   if (rawState == null) {
@@ -62,8 +61,6 @@ export const sendBlock = async (blockData: BlockData) => {
     }
 
     await sendTask(proofOfTask, data, taskDefinitionId);
-    // await verifyTask(proofOfTask, blockData.hash, taskDefinitionId);
-    // console.log("Task sent");
   } catch (e) {
     console.log(e);
   }

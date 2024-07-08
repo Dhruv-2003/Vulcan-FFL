@@ -92,6 +92,6 @@ app.listen(3000, () => {
 
 events.subscribe(BlockEvents.SUBMITTED, async (action) => {
   const { block } = action;
-  // console.log("Submitted a block", block);
+  console.log("Submitted a block", block);
   await sendBlock(block);
 });
