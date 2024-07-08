@@ -31,5 +31,7 @@ COPY src src
 # Install dependencies
 RUN npm install
 
+EXPOSE 42069
+
 # Command to run the application
 CMD ["npm", "start"]

@@ -13,7 +13,7 @@ const stackrConfig: StackrConfig = {
   },
   sequencer: {
     blockSize: 16,
-    blockTime: 10,
+    blockTime: 100,
   },
   syncer: {
     vulcanRPC: process.env.VULCAN_RPC as string,
