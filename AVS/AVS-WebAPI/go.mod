@@ -1,6 +1,6 @@
 module AVS-WebAPI
 
-go 1.21.11
+go 1.22.4
 
 require (
 	github.com/bytecodealliance/wasmtime-go v1.0.0

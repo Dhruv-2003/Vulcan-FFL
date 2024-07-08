@@ -1,12 +1,13 @@
 # Use the official Golang image as the base image
-FROM golang:1.20
+FROM golang:1.22.4
 
 # Set the working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy the Go module files and download dependencies
 COPY go.mod go.sum ./
-RUN go mod download
+
+RUN go mod download -x
 
 # Copy the source code to the container
 COPY . .

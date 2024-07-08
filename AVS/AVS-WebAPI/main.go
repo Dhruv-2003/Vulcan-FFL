@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"AVS-WebAPI/verifier"
 )
 
 // The request and response structure
 type ValidateRequest struct {
-	ProofOfTask string `json:"proofOfTask"`
-	Performer   string `json:"performer"`
-	Data        []byte `json:"data"`
+	ProofOfTask      string `json:"proofOfTask"`
+	Performer        string `json:"performer"`
+	Data             string `json:"data"`
+	TaskDefinitionId int    `json:"taskDefinitionId"`
 }
 
 type ValidateResponse struct {
-	Data    bool   `json:"valid"`
+	Data    bool   `json:"data"`
 	Error   string `json:"error,omitempty"`
 	Message string `json:"message,omitempty"`
 }
@@ -31,7 +31,12 @@ type ProofData struct {
 
 // Handler for the /task/validate endpoint
 func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
-	ipfsHost := os.Getenv("IPFS_HOST")
+	// try to read ipfs host from env & return error if not found
+	ipfsHost := "https://othentic.mypinata.cloud/ipfs"
+	if ipfsHost == "" {
+		http.Error(w, "IPFS_HOST env variable not set", http.StatusInternalServerError)
+		return
+	}
 
 	var req ValidateRequest
 	var res ValidateResponse
@@ -42,6 +47,9 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Log the request
+	log.Printf("Received request: %+v\n", req)
 
 	// Validation logic
 	if req.ProofOfTask == "" {
