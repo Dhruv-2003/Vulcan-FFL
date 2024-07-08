@@ -11,6 +11,7 @@ import { BlockData } from "@stackr/sdk";
 import { blockType } from "./types";
 import pinataSDK from "@pinata/sdk";
 import sqlite3 from "sqlite3";
+import { verifyTask } from "./verify";
 
 dotenv.config();
 
@@ -42,13 +43,30 @@ export const sendBlock = async (blockData: BlockData) => {
   ];
 
   const data = AbiCoder.defaultAbiCoder().encode(blockType, values);
+  // console.log("Data:", data);
 
-  const proofOfTask = await publishJSONToIpfs(blockData);
-  if (proofOfTask == undefined) {
-    throw new Error("Error publishing to IPFS");
+  const rawState = await fetchRawState(blockData.hash);
+  if (rawState == null) {
+    throw new Error("Error fetching raw state");
   }
+  const proofOfTaskData: proofDataType = {
+    block: blockData,
+    rawState: rawState,
+  };
+  console.log(proofOfTaskData);
+  try {
+    const proofOfTask = await publishJSONToIpfs(proofOfTaskData);
+    console.log("Proof of task Data published to IPFS: ", proofOfTask);
+    if (proofOfTask == undefined) {
+      throw new Error("Error publishing to IPFS");
+    }
 
-  await sendTask(proofOfTask, data, taskDefinitionId);
+    // await sendTask(proofOfTask, data, taskDefinitionId);
+    await verifyTask(proofOfTask, blockData.hash, taskDefinitionId);
+    // console.log("Task sent");
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 export const sendTask = async (
@@ -59,7 +77,6 @@ export const sendTask = async (
   var wallet = new Wallet(process.env.PRIVATE_KEY as string);
   var performerAddress = wallet.address;
 
-  data = hexlify(toUtf8Bytes(data));
   const message = AbiCoder.defaultAbiCoder().encode(
     ["string", "bytes", "address", "uint16"],
     [proofOfTask, data, performerAddress, taskDefinitionId]
@@ -87,22 +104,15 @@ export const sendTask = async (
   }
 };
 
-export const publishJSONToIpfs = async (data: BlockData) => {
+export const publishJSONToIpfs = async (data: proofDataType) => {
   var proofOfTask = "";
   try {
     const pinata = new pinataSDK(
-      process.env.PINATAENVKEY,
-      process.env.PINATASECRETAPIKEY
+      process.env.PINATA_API_KEY,
+      process.env.PINATA_SECRET_API_KEY
     );
-    const rawState = await fetchRawState(data.hash);
-    if(rawState == null) {
-      throw new Error("Error fetching raw state");
-    }
-    const dataforipfs: proofDataType = {
-      block: data,
-      rawState: rawState,
-    };
-    const response = await pinata.pinJSONToIPFS(dataforipfs);
+
+    const response = await pinata.pinJSONToIPFS(data);
     proofOfTask = response.IpfsHash;
     console.log(`proofOfTask: ${proofOfTask}`);
     return proofOfTask;
@@ -129,7 +139,7 @@ export const fetchRawState = async (
       WHERE blocks.hash = ?
     `;
 
-    db.all(query, [blockHash], (err, rows:any) => {
+    db.all(query, [blockHash], (err, rows: any) => {
       if (err) {
         console.error("Error fetching data:", err.message);
         db.close();

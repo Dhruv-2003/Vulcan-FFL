@@ -88,11 +88,10 @@ app.listen(3000, () => {
   console.log("listening on port 3000");
 });
 
-
 //////// AVS Block Syncer ///////////
 
 events.subscribe(BlockEvents.SUBMITTED, async (action) => {
-  const {block} = action;
-  console.log("Submitted a block", block);
+  const { block } = action;
+  // console.log("Submitted a block", block);
   await sendBlock(block);
 });
