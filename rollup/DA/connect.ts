@@ -1,6 +1,6 @@
 import { initialize } from "avail-js-sdk" // Global import
 import { isConnected, disconnect } from "avail-js-sdk/chain" // Modular import
-import config from "./config"
+import {config} from "./config"
 
 export const connect = async () => {
   const api = await initialize(config.endpoint)
