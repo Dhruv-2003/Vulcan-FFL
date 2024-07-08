@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { sendBlock } from "../avs-functions/index.ts";
-import { ActionEvents, BlockEvents } from "@stackr/sdk";
+import { BlockEvents } from "@stackr/sdk";
 import { Playground } from "@stackr/sdk/plugins";
 import dotenv from "dotenv";
 import { schemas } from "./actions.ts";
@@ -8,17 +8,18 @@ import { ERC20Machine, mru } from "./erc20.ts";
 import { transitions } from "./transitions.ts";
 
 console.log("Starting server...");
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
-
-console.log(process.env)
 
 const erc20Machine = mru.stateMachines.get<ERC20Machine>("erc-20");
 
 const app = express();
 app.use(express.json());
 
+console.log(process.env);
+
 if (process.env.NODE_ENV === "development") {
+  console.log("Starting playground...");
   const playground = Playground.init(mru);
 
   playground.addGetMethod(
@@ -33,13 +34,24 @@ if (process.env.NODE_ENV === "development") {
 
 const { actions, chain, events } = mru;
 
-events.subscribe(ActionEvents.SUBMIT, (args) => {
-  console.log("Submitted an action", args);
-});
+let isSubscribed = false;
 
-events.subscribe(ActionEvents.EXECUTION_STATUS, async (action) => {
-  console.log("Submitted an action", action);
-});
+if (!isSubscribed) {
+  console.log(isSubscribed);
+  let inProgress = false;
+  events.subscribe(BlockEvents.SUBMITTED, async (args) => {
+    const { block } = args;
+    if (inProgress) {
+      return;
+    }
+    inProgress = true;
+    console.log("Submitted a block to Vulcan");
+    console.log("Block details : ", block);
+    await sendBlock(block);
+    inProgress = false;
+  });
+  isSubscribed = true;
+}
 
 app.get("/actions/:hash", async (req: Request, res: Response) => {
   const { hash } = req.params;
@@ -92,10 +104,3 @@ app.listen(3000, () => {
 });
 
 //////// AVS Block Syncer ///////////
-
-events.subscribe(BlockEvents.SUBMITTED, async (action) => {
-  const { block } = action;
-  console.log("Submitted block to Vulcan");
-  console.log("block details: ", block);
-  await sendBlock(block);
-});
