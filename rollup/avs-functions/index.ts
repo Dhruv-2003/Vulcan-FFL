@@ -61,8 +61,8 @@ export const sendBlock = async (blockData: BlockData) => {
       throw new Error("Error publishing to IPFS");
     }
 
-    // await sendTask(proofOfTask, data, taskDefinitionId);
-    await verifyTask(proofOfTask, blockData.hash, taskDefinitionId);
+    await sendTask(proofOfTask, data, taskDefinitionId);
+    // await verifyTask(proofOfTask, blockData.hash, taskDefinitionId);
     // console.log("Task sent");
   } catch (e) {
     console.log(e);

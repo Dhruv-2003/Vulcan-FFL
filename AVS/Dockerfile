@@ -9,6 +9,6 @@ WORKDIR /app
 
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > $HOME/.npmrc
 
-RUN npm i -g @othentic/othentic-cli
+RUN npm i -g @othentic/othentic-cli --loglevel verbose
 
 ENTRYPOINT [ "othentic-cli" ]
