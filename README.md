@@ -1,13 +1,11 @@
 # Vulcan FFL
 Vulcan FFL is a fast finality layer to bring fast transaction finality across Ethereum’s Layer 2 rollups. It executes all the transactions in a block to pessimistically verify the state change of the rollup. For now, it is catered for Stackr’s Micro-rollup specifications but can be extended to other rollup standards. 
 
-Currently, rollups face significant challenges of absence and instant secure finality, Ethereum finality lags for many rollup-based use cases. To solve these problems, we implemented a fast finality layer which takes the block containing transactions from the rollup, pessimistically re-executes the state transition function and validates the state change. So, a rollup can assert a state claim on the Vulcan FFL, stating that executing a specific block of transactions leads to a particular state commitment. If a supermajority of nodes attests to its validity, rollup clients can achieve economic finality nearly instantaneously.
-
 ## Why?
 
-Rollups face significant challenges of absence and instant secure finality, Ethereum finality lags for many rollup-based use cases. To solve these problems, we implemented a fast finality layer which takes the block containing transactions from the rollup, pessimistically re-executes the state transition function and validates the state change. So, a rollup can assert a state claim on the Vulcan FFL, stating that executing a specific block of transactions leads to a particular state commitment. If a supermajority of nodes attests to its validity, rollup clients can achieve economic finality nearly instantaneously.
+Rollups face significant challenges of absence and instant secure finality, Ethereum finality lags for many rollup-based use cases. To solve these problems, we implemented a fast finality layer which takes the block containing transactions from the rollup, pessimistically re-executes the state transition function and validates the state change. So, a rollup can assert a state claim on the Vulcan FFL, stating that executing a specific block of transactions leads to a particular state commitment. If a supermajority of nodes attests to its validity, rollup clients can achieve economic finality almsost instantaneously.
 
-Presently, the Vulcan layer in Stackr’s stack is run by Stackr's Vulcan node, and we have extended it on AVS using the Othentic stack to achieve shared economic security and fast finality.
+Presently, the Vulcan layer in Stackr’s stack is run by Stackr's Vulcan node, and we have extended it on AVS using the Othentic stack to achieve shared economic security.
 
 ![WhatsApp Image (2)](https://github.com/Dhruv-2003/SS-Hackathon/assets/90101251/88cb048f-96ac-47f5-b94d-bcd281535c65)
 
