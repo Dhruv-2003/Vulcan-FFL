@@ -3,7 +3,7 @@ import { ISubmittableResult } from "@polkadot/types/types/extrinsic";
 import { H256 } from "@polkadot/types/interfaces/runtime";
 import { config } from "./config";
 
-export const submitBlob = async (data: any) => {
+export const submitBlob = async (jsonData: any) => {
   const api = await initialize(config.endpoint);
   const account = getKeyringFromSeed(config.seed as string);
   const appId = config.app_id === 0 ? 1 : config.app_id;
@@ -11,7 +11,7 @@ export const submitBlob = async (data: any) => {
 
   const txResult = await new Promise<ISubmittableResult>((res) => {
     api.tx.dataAvailability
-      .submitData(data)
+      .submitData(JSON.stringify(jsonData))
       .signAndSend(account, options, (result: ISubmittableResult) => {
         console.log(`Tx status: ${result.status}`);
         if (result.isFinalized || result.isError) {
@@ -40,14 +40,18 @@ export const submitBlob = async (data: any) => {
     } else {
       console.log(error.toString());
     }
-    process.exit(1);
   }
 
-  extractData(api, blockHash, txHash);
+  return {
+    txHash,
+    blockHash,
+  };
 };
 
-const extractData = async (api: any, blockHash: H256, txHash: H256) => {
+export const extractData = async (blockHash: H256, txHash: H256) => {
   try {
+    const api = await initialize(config.endpoint);
+
     const block = await api.rpc.chain.getBlock(blockHash);
     const tx = block.block.extrinsics.find(
       (tx) => tx.hash.toHex() == txHash.toHex()
@@ -64,11 +68,10 @@ const extractData = async (api: any, blockHash: H256, txHash: H256) => {
       str += String.fromCharCode(parseInt(dataHex.substring(n, n + 2), 16));
     }
     console.log(`submitted data: ${str}`);
-
-    process.exit(0);
+    const submittedJSON = JSON.parse(str);
+    return submittedJSON;
   } catch (err) {
     console.error(err);
-    process.exit(1);
   }
 };
 

@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "Bundler",
@@ -23,11 +21,13 @@
     ]
   },
   "include": [
+    "DA/**/*",
     "src/**/*",
     "tests/**/*",
     "executors/**/*",
     "deployment.json",
     "stackr.config.ts",
-    "genesis-state.json"
-, "avs-functions"  ]
+    "genesis-state.json",
+    "avs-functions"
+  ]
 }
