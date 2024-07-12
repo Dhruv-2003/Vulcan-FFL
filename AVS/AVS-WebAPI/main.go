@@ -35,10 +35,15 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling /task/validate request")
 
 	// Try to read IPFS host from env & return error if not found
-	ipfsHost := os.Getenv("IPFS_HOST")
-	if ipfsHost == "" {
-		ipfsHost = "https://othentic.mypinata.cloud/ipfs"
-		log.Println("Warning: IPFS_HOST env variable not set. Using default:", ipfsHost)
+	// ipfsHost := os.Getenv("IPFS_HOST")
+	// if ipfsHost == "" {
+	// 	ipfsHost = "https://othentic.mypinata.cloud/ipfs"
+	// 	log.Println("Warning: IPFS_HOST env variable not set. Using default:", ipfsHost)
+	// }
+	mruUrl := os.Getenv("MRU_URL")
+	if mruUrl == "" {
+		mruUrl = "http://localhost:3000"
+		log.Println("Warning: MRU_URL env variable not set. Using default:", mruUrl)
 	}
 
 	var req ValidateRequest
@@ -67,11 +72,12 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Perform validation of the execution of the block to verify
 	// 1. Take the inputs from the request as proofOfTask and data
-	cid := req.ProofOfTask
-	log.Printf("cid for task %v", cid)
+	// cid := req.ProofOfTask
+	// log.Printf("cid for task %v", cid)
 
-	// 2. Preparing the data for the block , so either fetch from the CID or something
-	url := fmt.Sprintf("%s/%s", ipfsHost, cid)
+	// // 2. Preparing the data for the block , so either fetch from the CID or something
+	// url := fmt.Sprintf("%s/%s", ipfsHost, cid)
+	url := fmt.Sprintf("%s/%s", mruUrl, req.ProofOfTask)
 
 	proofData, err := fetchUserData(url)
 	if err != nil {
