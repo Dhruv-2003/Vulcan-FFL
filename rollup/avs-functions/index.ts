@@ -1,14 +1,10 @@
-import {
-  Wallet,
-  AbiCoder,
-  keccak256,
-  JsonRpcProvider,
-} from "ethers";
+import { Wallet, AbiCoder, keccak256, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
 import { BlockData } from "@stackr/sdk";
 import { blockType } from "./types";
 import pinataSDK from "@pinata/sdk";
 import sqlite3 from "sqlite3";
+import { submitBlob } from "../DA/utils";
 
 dotenv.config();
 
@@ -18,7 +14,7 @@ export type proofDataType = {
 };
 
 export const sendBlock = async (blockData: BlockData) => {
-  console.log("creating vulcan leader signature")
+  console.log("creating vulcan leader signature");
   const operator = new Wallet(process.env.PRIVATE_KEY as string);
   const { operatorSignature } = blockData;
   const vulcanLeaderSignature = await operator.signMessage(
@@ -51,14 +47,16 @@ export const sendBlock = async (blockData: BlockData) => {
     block: blockData,
     rawState: rawState,
   };
-  console.log("proofOfTask data :",proofOfTaskData);
+  console.log("proofOfTask data :", proofOfTaskData);
   try {
-    const proofOfTask = await publishJSONToIpfs(proofOfTaskData);
-    console.log("Proof of task Data published to IPFS: ", proofOfTask);
+    // const proofOfTask = await publishJSONToIpfs(proofOfTaskData);
+    const availPostData = await submitBlob(proofOfTaskData);
+    const proofOfTask = `${availPostData.blockHash}:${availPostData.txHash}`;
+    console.log("Proof of task Data published to DA: ", proofOfTask);
     if (proofOfTask == undefined) {
       throw new Error("Error publishing to IPFS");
     }
-    await sendTask(proofOfTask, data, taskDefinitionId);
+    // await sendTask(proofOfTask, data, taskDefinitionId);
   } catch (e) {
     console.log(e);
   }

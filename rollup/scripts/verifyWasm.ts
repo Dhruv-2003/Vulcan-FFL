@@ -1,4 +1,4 @@
-async function main() {
+async function querymain() {
   const body = {
     data: "0xd81d9c5be0b1197091489c2387f5ac0067837baa3a7227186601abac3bafea61",
     proofOfTask: "QmU4yuVEzfdGfQrVwCRbof9WYuP6iUp9XL16QvpDi7G2QG",

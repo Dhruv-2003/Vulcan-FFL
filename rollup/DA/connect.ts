@@ -1,18 +1,17 @@
-import { initialize } from "avail-js-sdk" // Global import
-import { isConnected, disconnect } from "avail-js-sdk/chain" // Modular import
-import {config} from "./config"
+import { initialize } from "avail-js-sdk"; // Global import
+import { isConnected, disconnect } from "avail-js-sdk/chain"; // Modular import
+import { config } from "./config";
 
 export const connect = async () => {
-  const api = await initialize(config.endpoint)
+  const api = await initialize(config.endpoint);
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
     api.rpc.system.name(),
     api.rpc.system.version(),
-  ])
+  ]);
 
   console.log(
-    `Connected to chain ${chain} using ${nodeName} and node version ${nodeVersion} - is connected: ${isConnected()}`,
-  )
-  await disconnect()
-  process.exit(0)
-}
+    `Connected to chain ${chain} using ${nodeName} and node version ${nodeVersion} - is connected: ${isConnected()}`
+  );
+  await disconnect();
+};

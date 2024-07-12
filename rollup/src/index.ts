@@ -9,7 +9,7 @@ import { transitions } from "./transitions.ts";
 import { extractData, queryProof } from "../DA/utils.ts";
 import { H256 } from "@polkadot/types/interfaces/runtime";
 
-console.log("Starting server...");
+// console.log("Starting server...");
 dotenv.config({ path: "../.env" });
 
 const erc20Machine = mru.stateMachines.get<ERC20Machine>("erc-20");
@@ -17,7 +17,7 @@ const erc20Machine = mru.stateMachines.get<ERC20Machine>("erc-20");
 const app = express();
 app.use(express.json());
 
-console.log(process.env);
+// console.log(process.env);
 
 if (process.env.NODE_ENV === "development") {
   console.log("Starting playground...");
@@ -100,15 +100,25 @@ app.get("/", (_req: Request, res: Response) => {
   return res.send({ state: erc20Machine?.state });
 });
 
-app.get("/data", async (req: Request, res: Response) => {
-  const { blockHash, txHash }: any = req.params;
-  const json = await extractData(blockHash as H256, txHash as H256);
+app.get("/data/:proofOfTask", async (req: Request, res: Response) => {
+  const { proofOfTask } = req.params;
+
+  const proofArr = proofOfTask.split(":");
+  const blockHash = proofArr[0];
+  const txHash = proofArr[1];
+
+  const json = await extractData(blockHash as string, txHash as string);
 
   return res.send(json);
 });
 
-app.get("/proof", async (req: Request, res: Response) => {
-  const { blockHash }: any = req.params;
+app.get("/proof/:proofOfTask", async (req: Request, res: Response) => {
+  const { proofOfTask } = req.params;
+
+  const proofArr = proofOfTask.split(":");
+  const blockHash = proofArr[0];
+  const txHash = proofArr[1];
+
   const proof = await queryProof(blockHash as string);
 
   return res.send(proof);
