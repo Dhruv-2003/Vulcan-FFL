@@ -42,7 +42,7 @@ func validateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 	mruUrl := os.Getenv("MRU_URL")
 	if mruUrl == "" {
-		mruUrl = "http://localhost:3000"
+		mruUrl = "http://localhost:3000/data"
 		log.Println("Warning: MRU_URL env variable not set. Using default:", mruUrl)
 	}
 
